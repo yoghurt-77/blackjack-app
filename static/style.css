@@ -1,0 +1,511 @@
+body {
+  font-family: Arial, sans-serif;
+  padding: 1rem 1rem 2rem 1rem;
+  margin: 0;
+  position: relative;
+}
+
+.container {
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+
+.history {
+  flex-shrink: 0;
+  width: 200px;
+  margin-right: 2rem;
+  text-align: left;
+}
+
+.game {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+table {
+  border-collapse: collapse;
+  margin: 0;
+}
+th, td {
+  border: 1px solid #333;
+  padding: 0.5rem 1rem;
+}
+.cards {
+  margin: 0.25rem auto 1rem;  /* 上を少し、下はそのまま */
+  position: relative;
+  top: -20px; 
+}
+.cards img {
+  display: inline-block;
+  margin: 0 0.5rem;
+  width: 80px;
+}
+.play-again {
+  margin-top: 1.0rem;
+  top: -10px;
+  transform: translateY(-20px);
+}
+.message {
+  color: blue;
+  font-size: 1.2rem;
+  margin: 1rem;
+}
+.hand {
+  padding-top: 2rem;
+  margin: 0 auto 2rem;
+  margin-bottom: 1rem;
+  border: 1px solid #ccc;
+  padding: 1rem;
+  border-radius: 8px;
+  text-align: center;
+  max-width: 400px;
+}
+.hand-title {
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  position: relative;
+  z-index: 2;
+  padding: 0.25rem 0.5rem;
+  top: -10px;
+}
+.result {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin: 1rem;
+}
+#bgm-toggle {
+  position: fixed;
+  top: 10px;
+  right: 15px;
+  font-size: 1.5rem;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 6px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  z-index: 9999;
+  transition: background 0.3s;
+}
+#bgm-toggle:hover {
+  background: rgba(255, 255, 255, 1);
+}
+
+.win-animation {
+  position: relative;
+  z-index: 9999;
+  animation: rainbowFlash 1.25s linear infinite;
+  background-image: linear-gradient(
+    to bottom right,
+    red 0%,
+    orange 16.7%,
+    yellow 33.4%,
+    green 50.1%,
+    blue 66.8%,
+    indigo 83.5%,
+    violet 100%
+  );
+  background-size: 200% 200%;
+  min-height: 100vh;
+  margin: 0;
+}
+
+@keyframes rainbowFlash {
+  0% { background-position: 0% 0%; }
+  100% { background-position: 100% 100%; }
+}
+
+.pien {
+  position: fixed;
+  top: -2rem;
+  font-size: 2rem;  /* ぴえんのサイズ */
+  pointer-events: none;
+  opacity: 0.8;
+  animation-name: fall;
+  animation-timing-function: linear;
+  z-index: 1;
+}
+@keyframes fall {
+  to {
+    transform: translateY(110vh) rotate(360deg);
+    opacity: 0.5;
+  }
+}
+
+.game-over {
+  position: fixed;
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 4rem;
+  font-weight: bold;
+  color: red;
+  text-shadow: 2px 2px 5px black;
+  z-index: 1000;
+  animation: fadein 1s ease-out;
+}
+@keyframes fadein {
+  from { opacity: 0; transform: translate(-50%, -60%); }
+  to { opacity: 1; transform: translate(-50%, -50%); }
+}
+
+.natural-bj {
+  display: none;
+  position: fixed;
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 5rem;
+  font-weight: bold;
+  color: gold;
+  text-shadow: 3px 3px 10px black;
+  z-index: 9999;
+  opacity: 0;
+  animation: bj-fadein 3s ease-in-out forwards, bj-shake 0.3s infinite;
+}
+body[data-bj="true"] #natural-bj {
+  display: block;
+}
+@keyframes bj-fadein {
+  0% { opacity: 0; transform: translate(-50%, -60%) scale(0.8); }
+  100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+@keyframes bj-shake {
+  0% { transform: translate(-50%, -50%) rotate(0deg); }
+  25% { transform: translate(-49%, -51%) rotate(1deg); }
+  50% { transform: translate(-51%, -49%) rotate(-1deg); }
+  75% { transform: translate(-50%, -50%) rotate(1deg); }
+  100% { transform: translate(-50%, -50%) rotate(0deg); }
+}
+.reset-button {
+  display: block;
+  margin: 1.5rem auto 0;
+  padding: 0.6rem 1.2rem;
+  font-size: 1.2rem;
+  background-color: #ffdddd;
+  border: 2px solid #cc0000;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+}
+
+#pien-bgm-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.9);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+}
+
+.big-bgm-btn {
+  font-size: 3rem;
+  padding: 2rem 4rem;
+  background-color: hotpink;
+  color: white;
+  border: none;
+  border-radius: 30px;
+  box-shadow: 0 0 30px white;
+  cursor: pointer;
+}
+.pien-count {
+  font-size: 1.2rem;
+  color: white;
+  background-color: hotpink;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  display: inline-block;
+  margin-top: 1rem;
+  box-shadow: 1px 1px 5px rgba(0,0,0,0.1);
+}
+
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.reset-button {
+  display: block;
+  margin: 1rem auto 0;
+  padding: 0.5rem 1rem;
+  font-size: 1.2rem;
+  background-color: #ffc;
+  border: 2px solid #999;
+  border-radius: 8px;
+  cursor: pointer;
+  animation: fadeSlideUp 1s ease-out;
+  transition: transform 0.2s ease;
+}
+
+.reset-button:hover {
+  transform: scale(1.1) rotate(-2deg);
+}
+/* モーダルのオーバーレイ */
+#modal-overlay {
+  display: none;
+  position: fixed;
+  z-index: 9999;
+  top: 0; left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  justify-content: center;
+  align-items: center;
+}
+
+#modal-message-box {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 0 20px black;
+  max-width: 80%;
+  min-width: 300px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;   /* ← 中央揃え */
+  align-items: center;       /* ← 横も中央 */
+  text-align: center;
+}
+
+
+/* メッセージ */
+#modal-message {
+  font-size: 1.5rem;
+  margin-bottom: 1.2rem; /* ← 下余白でOKボタンと距離 */
+  white-space: pre-wrap;
+}
+
+
+/* OKボタン */
+#modal-close {
+  padding: 0.5rem 1.5rem;
+  font-size: 1rem;
+  border: none;
+  background-color: #f88;
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+#modal-close:hover {
+  background-color: #e55;
+}
+#modal-fireworks {
+  position: relative;
+  width: 100%;
+  height: 150px;    /* 高さ調整 */
+  overflow: visible;
+  margin-bottom: 1rem;
+}
+
+/* 花火の親コンテナ */
+.fireworks-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 9998;
+  overflow: hidden;
+}
+
+/* 花火の粒 */
+.firework {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background-color: yellow;
+  border-radius: 50%;
+  animation: explode 1s ease-out forwards;
+}
+
+/* 花火のアニメーション */
+@keyframes explode {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--x), var(--y)) scale(0.5);
+    opacity: 0;
+  }
+}
+
+/* 揺らす */
+@keyframes screenShake {
+  0%   { transform: translate(0px, 0px); }
+  25%  { transform: translate(5px, -5px); }
+  50%  { transform: translate(-5px, 5px); }
+  75%  { transform: translate(5px, 5px); }
+  100% { transform: translate(0px, 0px); }
+}
+
+.shake {
+  animation: screenShake 0.1s infinite;
+}
+
+/* ハートシャワー */
+.heart {
+  position: fixed;
+  bottom: -30px;
+  font-size: 2rem;
+  animation: floatUp 5s ease-out forwards;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+@keyframes floatUp {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-100vh) scale(1.2);
+    opacity: 0;
+  }
+}
+
+/* 赤７ */
+.seven-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  pointer-events: none;
+}
+
+.seven {
+  font-size: 7rem;
+  font-weight: bold;
+  color: red;
+  position: absolute;
+  opacity: 0;
+  animation-fill-mode: forwards;
+}
+
+/* 各7に違うアニメーション */
+.seven-left {
+  left: 49vw;
+  animation: dropLeft 2s ease-out forwards;
+  animation-delay: 0s;
+}
+
+.seven-center {
+  left: 50vw;
+  animation: dropCenter 2s ease-out forwards;
+  animation-delay: 0.6s;
+}
+
+.seven-right {
+  left: 51vw;
+  animation: dropRight 2s ease-out forwards;
+  animation-delay: 1.2s;
+}
+
+@keyframes dropLeft {
+  0% { top: -100px; opacity: 0; transform: translateX(-150px); }
+  100% { top: 35%; opacity: 1; transform: translateX(-150px); }
+}
+
+@keyframes dropCenter {
+  0% { top: -100px; opacity: 0; transform: translateX(-50%);}
+  100% { top: 35%; opacity: 1; transform: translateX(-50%); }
+}
+
+@keyframes dropRight {
+  0% { top: -100px; opacity: 0; transform: translateX(80px); }
+  100% { top: 35%; opacity: 1; transform: translateX(80px); }
+}
+
+/* 画面の回転 */
+@keyframes spinScreen {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.spin-whole {
+  animation: spinScreen 2s ease-in-out;
+  transform-origin: center center;
+}
+
+/*  画面を引き裂く */
+#rip-wrapper {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  z-index: 10000;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.rip {
+  position: absolute;
+  top: 0;
+  width: 50vw;
+  height: 100vh;
+  background: black;
+  z-index: 10001;
+}
+
+.rip.left {
+  left: 0;
+  animation: ripLeft 1s ease-out forwards;
+}
+
+.rip.right {
+  right: 0;
+  animation: ripRight 1s ease-out forwards;
+}
+
+@keyframes ripLeft {
+  to { transform: translateX(-100%); }
+}
+
+@keyframes ripRight {
+  to { transform: translateX(100%); }
+}
+
+/* 悪魔 */
+#demon-summon {
+  position: fixed;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 10rem;
+  color: crimson;
+  text-shadow: 0 0 20px red, 0 0 40px darkred;
+  animation: glitch 0.1s infinite;
+  z-index: 10002;
+}
+
+@keyframes glitch {
+  0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+  50% { transform: translate(-48%, -52%) scale(1.05); opacity: 0.7; }
+  100% { transform: translate(-52%, -48%) scale(1); opacity: 1; }
+}
+
+/* .invert-effect {
+  filter: invert(1);
+} */

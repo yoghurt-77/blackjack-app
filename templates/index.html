@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <title>Blackjack</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <!-- defer を付けると DOMContentLoaded 前に読み込み→実行OK -->
+  <script defer src="{{ url_for('static', filename='script.js') }}"></script>
+</head>
+<body data-balance="{{ balance }}" data-bj="{{ 'true' if natural_bj else 'false' }}">
+
+  <h1>Blackjack</h1>
+  <h2>残高: ${{ balance }}</h2>
+
+  <div class="container">
+    <div class="history">
+      {% if history %}
+      <h2>History</h2>
+      <table>
+        <tr><th>Round</th><th>Bet</th><th>Result</th><th>Balance</th></tr>
+        {% for h in history %}
+        <tr>
+          <td>{{ h.round }}</td>
+          <td>${{ h.bet }}</td>
+          <td>{{ h.result }}</td>
+          <td>${{ h.balance }}</td>
+        </tr>
+        {% endfor %}
+      </table>
+      {% endif %}
+    </div>
+
+    <div class="game">
+      <h2>Dealer</h2>
+      <div class="cards">
+        {% set rank_map = {'1':'ace','11':'jack','12':'queen','13':'king'} %}
+        {% set suit_map = {'s':'spades','h':'hearts','d':'diamonds','c':'clubs'} %}
+
+        {% set rank = dealer_up[0][1:] %}
+        {% set suit_code = dealer_up[0][0] %}
+        {% set suit = suit_map[suit_code] %}
+        {% set rank_str = rank_map.get(rank, rank) %}
+        <img src="{{ url_for('static', filename='cards/'~rank_str~'_of_'~suit~'.png') }}">
+
+        {% if phase != 'player' %}
+          {% for card in dealer[1:] %}
+            {% set rank = card[0][1:] %}
+            {% set suit_code = card[0][0] %}
+            {% set suit = suit_map[suit_code] %}
+            {% set rank_str = rank_map.get(rank, rank) %}
+            <img src="{{ url_for('static', filename='cards/'~rank_str~'_of_'~suit~'.png') }}">
+          {% endfor %}
+        {% else %}
+          <img src="{{ url_for('static', filename='cards/back.png') }}">
+        {% endif %}
+      </div>
+      {% if dealer_total %}<div>Dealer Total: {{ dealer_total }}</div>{% endif %}
+
+      {% if phase == 'end' %}
+        <h2>You</h2>
+        {% for hand in player_hands %}
+        <div class="hand">
+          {% set player_val = calculate_hand_value(hand) %}
+          <div class="hand-title">Hand {{ loop.index }} - Total: {{ player_val }}</div>
+          <div class="cards">
+            {% for c in hand %}
+              {% set rank = c[0][1:] %}
+              {% set suit = suit_map[c[0][0]] %}
+              {% set rank_str = rank_map.get(rank, rank) %}
+              <img src="{{ url_for('static', filename='cards/'~rank_str~'_of_'~suit~'.png') }}">
+            {% endfor %}
+          </div>
+          <div class="result">
+            {% if player_val > 21 %}
+              Bust - You Lose!
+            {% elif dealer_total > 21 %}
+              Dealer Bust - You Win!
+            {% elif player_val > dealer_total %}
+              You Win!
+            {% elif player_val < dealer_total %}
+              You Lose!
+            {% else %}
+              Draw
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+        <a href="{{ url_for('start') }}"><button class="play-again">Play Again</button></a>
+
+      {% elif phase == 'player' %}
+        <h2>You (Hand {{ hand_index }} / {{ hand_count }})</h2>
+        <div class="cards">
+          {% for c in player %}
+            {% set rank = c[0][1:] %}
+            {% set suit = suit_map[c[0][0]] %}
+            {% set rank_str = rank_map.get(rank, rank) %}
+            <img src="{{ url_for('static', filename='cards/'~rank_str~'_of_'~suit~'.png') }}">
+          {% endfor %}
+        </div>
+        <div>Total: {{ player_total }}</div>
+        {% if message %}<div class="message">{{ message }}</div>{% endif %}
+        <form method="post" action="{{ url_for('hit') }}"><button type="submit">Hit</button></form>
+        <form method="post" action="{{ url_for('stand') }}"><button type="submit">Stand</button></form>
+        {% if can_split %}
+          <form method="post" action="{{ url_for('split') }}"><button type="submit">Split</button></form>
+        {% endif %}
+      {% endif %}
+    </div>
+  </div>
+  <div id="natural-bj" class="natural-bj">BLACKJACK!!</div>
+  <audio id="bj-sound" src="{{ url_for('static', filename='sounds/natural-bj.mp3') }}"></audio>
+</body>
+</html>
