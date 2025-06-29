@@ -338,7 +338,7 @@ document.addEventListener('DOMContentLoaded', () => {
           document.body.classList.remove('spin-whole');
         }, 2000);
       }
-      else if (count === 0) {
+      else if (count === 666) {
         trigger666();
         document.body.classList.add('invert-effect');
 
